@@ -45,7 +45,7 @@ const rimLight = new THREE.DirectionalLight(0xffffff, 0.6);
 rimLight.position.set(0, -2, 5);
 scene.add(rimLight);
 
-const groundGeo = new THREE.PlaneGeometry(10, 10);
+const groundGeo = new THREE.PlaneGeometry(40, 40);
 const groundMat = new THREE.ShadowMaterial({ opacity: 0.3, color: 0x000000 });
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
@@ -53,7 +53,7 @@ ground.position.y = -0.01;
 ground.receiveShadow = true;
 scene.add(ground);
 
-const grid = new THREE.GridHelper(6, 12, 0x6666aa, 0x444466);
+const grid = new THREE.GridHelper(20, 20, 0x6666aa, 0x444466);
 grid.position.y = 0;
 scene.add(grid);
 
