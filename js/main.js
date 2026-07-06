@@ -186,14 +186,25 @@ rightLegPivot.add(rightFoot);
 scene.add(avatar);
 avatar.scale.set(0.6, 0.6, 0.6);
 
-const walkSpeed = 0.02;
-const walkRadius = 2.5;
-let walkAngle = Math.random() * Math.PI * 2;
-let walkTimer = 0;
+const keys = { w: false, a: false, s: false, d: false };
+window.addEventListener('keydown', (e) => { if (e.key in keys) keys[e.key] = true; });
+window.addEventListener('keyup', (e) => { if (e.key in keys) keys[e.key] = false; });
+
+document.querySelectorAll('.controls button').forEach(btn => {
+  const key = btn.dataset.key;
+  const down = (e) => { e.preventDefault(); keys[key] = true; };
+  const up = (e) => { e.preventDefault(); keys[key] = false; };
+  btn.addEventListener('mousedown', down);
+  btn.addEventListener('mouseup', up);
+  btn.addEventListener('mouseleave', up);
+  btn.addEventListener('touchstart', down, { passive: false });
+  btn.addEventListener('touchend', up, { passive: false });
+  btn.addEventListener('touchcancel', up, { passive: false });
+});
 
 const loader = new FontLoader();
 loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-  const textGeo = new TextGeometry('HELLO', {
+  const textGeo = new TextGeometry('MORAX', {
     font,
     size: 0.5,
     height: 0.05,
@@ -230,26 +241,24 @@ function animate() {
   const t = Date.now() * 0.003;
   avatar.position.y = Math.sin(t * 0.3) * 0.04;
 
-  const swing = 0.5;
-  leftArmPivot.rotation.x = Math.sin(t) * swing;
-  rightArmPivot.rotation.x = Math.sin(t + Math.PI) * swing;
-  leftLegPivot.rotation.x = Math.sin(t + Math.PI) * swing;
-  rightLegPivot.rotation.x = Math.sin(t) * swing;
-
-  walkTimer += 0.01;
-  if (walkTimer > 3 + Math.random() * 3) {
-    walkAngle += (Math.random() - 0.5) * Math.PI * 0.5;
-    walkTimer = 0;
+  let dx = 0, dz = 0;
+  if (keys.w) dz -= 1;
+  if (keys.s) dz += 1;
+  if (keys.a) dx -= 1;
+  if (keys.d) dx += 1;
+  const moving = dx !== 0 || dz !== 0;
+  if (moving) {
+    const angle = Math.atan2(dz, dx);
+    avatar.position.x += Math.cos(angle) * 0.03;
+    avatar.position.z += Math.sin(angle) * 0.03;
+    avatar.rotation.y = -angle + Math.PI / 2;
   }
 
-  avatar.position.x += Math.cos(walkAngle) * walkSpeed;
-  avatar.position.z += Math.sin(walkAngle) * walkSpeed;
-  avatar.rotation.y = -walkAngle;
-
-  const dist = Math.sqrt(avatar.position.x ** 2 + avatar.position.z ** 2);
-  if (dist > walkRadius) {
-    walkAngle += Math.PI + (Math.random() - 0.5) * 0.5;
-  }
+  const swing = moving ? 0.5 : 0;
+  leftArmPivot.rotation.x = Math.sin(t * (moving ? 1 : 0)) * swing;
+  rightArmPivot.rotation.x = Math.sin(t * (moving ? 1 : 0) + Math.PI) * swing;
+  leftLegPivot.rotation.x = Math.sin(t * (moving ? 1 : 0) + Math.PI) * swing;
+  rightLegPivot.rotation.x = Math.sin(t * (moving ? 1 : 0)) * swing;
 
   controls.update();
   renderer.render(scene, camera);
