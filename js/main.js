@@ -119,49 +119,69 @@ mouth.rotation.x = 0.2;
 avatar.add(mouth);
 
 const armMat = darkMat;
-const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.8, 10), armMat);
-leftArm.position.set(-0.95, 1.4, 0);
-leftArm.rotation.z = 0.25;
-leftArm.rotation.x = 0.15;
+const footMat = new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.9 });
+const armLen = 0.8;
+const armHalf = armLen / 2;
+const legLen = 0.75;
+const legHalf = legLen / 2;
+
+const leftArmPivot = new THREE.Group();
+leftArmPivot.position.set(-0.95, 1.8, 0);
+avatar.add(leftArmPivot);
+
+const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, armLen, 10), armMat);
+leftArm.position.set(0, -armHalf, 0);
+leftArm.rotation.z = 0.2;
 leftArm.castShadow = true;
-avatar.add(leftArm);
+leftArmPivot.add(leftArm);
 
 const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), skinMat);
-leftHand.position.set(-1.2, 0.98, 0.08);
+leftHand.position.set(0, -armLen - 0.08, 0.05);
 leftHand.castShadow = true;
-avatar.add(leftHand);
+leftArmPivot.add(leftHand);
 
-const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.8, 10), armMat);
-rightArm.position.set(0.95, 1.4, 0);
-rightArm.rotation.z = -0.25;
-rightArm.rotation.x = -0.15;
+const rightArmPivot = new THREE.Group();
+rightArmPivot.position.set(0.95, 1.8, 0);
+avatar.add(rightArmPivot);
+
+const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, armLen, 10), armMat);
+rightArm.position.set(0, -armHalf, 0);
+rightArm.rotation.z = -0.2;
 rightArm.castShadow = true;
-avatar.add(rightArm);
+rightArmPivot.add(rightArm);
 
 const rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), skinMat);
-rightHand.position.set(1.2, 0.98, -0.08);
+rightHand.position.set(0, -armLen - 0.08, -0.05);
 rightHand.castShadow = true;
-avatar.add(rightHand);
+rightArmPivot.add(rightHand);
 
-const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.75, 10), darkMat);
-leftLeg.position.set(-0.35, 0.35, 0);
+const leftLegPivot = new THREE.Group();
+leftLegPivot.position.set(-0.35, 0.725, 0);
+avatar.add(leftLegPivot);
+
+const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, legLen, 10), darkMat);
+leftLeg.position.set(0, -legHalf, 0);
 leftLeg.castShadow = true;
-avatar.add(leftLeg);
+leftLegPivot.add(leftLeg);
 
-const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.75, 10), darkMat);
-rightLeg.position.set(0.35, 0.35, 0);
-rightLeg.castShadow = true;
-avatar.add(rightLeg);
-
-const leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.45), new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.9 }));
-leftFoot.position.set(-0.35, 0.02, 0.05);
+const leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.45), footMat);
+leftFoot.position.set(0, -legLen - 0.06, 0.05);
 leftFoot.castShadow = true;
-avatar.add(leftFoot);
+leftLegPivot.add(leftFoot);
 
-const rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.45), new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.9 }));
-rightFoot.position.set(0.35, 0.02, 0.05);
+const rightLegPivot = new THREE.Group();
+rightLegPivot.position.set(0.35, 0.725, 0);
+avatar.add(rightLegPivot);
+
+const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, legLen, 10), darkMat);
+rightLeg.position.set(0, -legHalf, 0);
+rightLeg.castShadow = true;
+rightLegPivot.add(rightLeg);
+
+const rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.45), footMat);
+rightFoot.position.set(0, -legLen - 0.06, 0.05);
 rightFoot.castShadow = true;
-avatar.add(rightFoot);
+rightLegPivot.add(rightFoot);
 
 scene.add(avatar);
 avatar.scale.set(0.6, 0.6, 0.6);
@@ -202,7 +222,15 @@ window.addEventListener('resize', () => {
 
 function animate() {
   requestAnimationFrame(animate);
-  avatar.position.y = Math.sin(Date.now() * 0.001) * 0.04;
+  const t = Date.now() * 0.003;
+  avatar.position.y = Math.sin(t * 0.3) * 0.04;
+
+  const swing = 0.5;
+  leftArmPivot.rotation.x = Math.sin(t) * swing;
+  rightArmPivot.rotation.x = Math.sin(t + Math.PI) * swing;
+  leftLegPivot.rotation.x = Math.sin(t + Math.PI) * swing;
+  rightLegPivot.rotation.x = Math.sin(t) * swing;
+
   controls.update();
   renderer.render(scene, camera);
 }
