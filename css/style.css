@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #1a1a2e;
+}
+
+canvas {
+  display: block;
+}
+
+.info {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #aaa;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  pointer-events: none;
+  user-select: none;
+}

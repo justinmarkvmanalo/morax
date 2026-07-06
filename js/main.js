@@ -1,0 +1,209 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(4, 3, 6);
+camera.lookAt(0, 1.2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.2, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.08;
+controls.minDistance = 2;
+controls.maxDistance = 12;
+controls.update();
+
+const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
+scene.add(ambientLight);
+
+const mainLight = new THREE.DirectionalLight(0xffeedd, 2.5);
+mainLight.position.set(5, 8, 4);
+mainLight.castShadow = true;
+mainLight.shadow.mapSize.width = 1024;
+mainLight.shadow.mapSize.height = 1024;
+scene.add(mainLight);
+
+const fillLight = new THREE.DirectionalLight(0x4488ff, 0.8);
+fillLight.position.set(-3, 2, -4);
+scene.add(fillLight);
+
+const rimLight = new THREE.DirectionalLight(0xffffff, 0.6);
+rimLight.position.set(0, -2, 5);
+scene.add(rimLight);
+
+const groundGeo = new THREE.PlaneGeometry(10, 10);
+const groundMat = new THREE.ShadowMaterial({ opacity: 0.3, color: 0x000000 });
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.01;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const grid = new THREE.GridHelper(6, 12, 0x6666aa, 0x444466);
+grid.position.y = 0;
+scene.add(grid);
+
+const avatar = new THREE.Group();
+
+const skinMat = new THREE.MeshStandardMaterial({ color: 0xf0c8a0, roughness: 0.5, metalness: 0.0 });
+const darkMat = new THREE.MeshStandardMaterial({ color: 0x2c2c3a, roughness: 0.8, metalness: 0.0 });
+const whiteMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 0.7, metalness: 0.0 });
+const eyeMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3, metalness: 0.1 });
+const mouthMat = new THREE.MeshStandardMaterial({ color: 0xcc8888, roughness: 0.4, metalness: 0.0 });
+const beltMat = new THREE.MeshStandardMaterial({ color: 0x553322, roughness: 0.9, metalness: 0.0 });
+
+const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.9, 1.2, 12), darkMat);
+torso.position.y = 1.0;
+torso.castShadow = true;
+avatar.add(torso);
+
+const belt = new THREE.Mesh(new THREE.TorusGeometry(0.82, 0.06, 8, 24), beltMat);
+belt.position.y = 0.45;
+belt.rotation.x = Math.PI / 2;
+belt.castShadow = true;
+avatar.add(belt);
+
+const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 0.15, 10), skinMat);
+neck.position.y = 1.65;
+neck.castShadow = true;
+avatar.add(neck);
+
+const head = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 24), skinMat);
+head.position.y = 1.95;
+head.castShadow = true;
+avatar.add(head);
+
+const hairMat = new THREE.MeshStandardMaterial({ color: 0x4a3728, roughness: 0.9, metalness: 0.0 });
+const hair = new THREE.Mesh(new THREE.SphereGeometry(0.56, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.4), hairMat);
+hair.position.set(0, 2.08, 0.05);
+hair.scale.set(1, 0.45, 1.1);
+hair.castShadow = true;
+avatar.add(hair);
+
+const eyeGeo = new THREE.SphereGeometry(0.09, 12, 12);
+const leftEye = new THREE.Mesh(eyeGeo, whiteMat);
+leftEye.position.set(-0.17, 2.04, 0.48);
+avatar.add(leftEye);
+
+const rightEye = new THREE.Mesh(eyeGeo, whiteMat);
+rightEye.position.set(0.17, 2.04, 0.48);
+avatar.add(rightEye);
+
+const pupilGeo = new THREE.SphereGeometry(0.05, 10, 10);
+const leftPupil = new THREE.Mesh(pupilGeo, eyeMat);
+leftPupil.position.set(-0.17, 2.02, 0.56);
+avatar.add(leftPupil);
+
+const rightPupil = new THREE.Mesh(pupilGeo, eyeMat);
+rightPupil.position.set(0.17, 2.02, 0.56);
+avatar.add(rightPupil);
+
+const mouth = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.04, 8), mouthMat);
+mouth.position.set(0, 1.82, 0.52);
+mouth.rotation.z = 0.1;
+mouth.rotation.x = 0.2;
+avatar.add(mouth);
+
+const armMat = darkMat;
+const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.8, 10), armMat);
+leftArm.position.set(-0.95, 1.4, 0);
+leftArm.rotation.z = 0.25;
+leftArm.rotation.x = 0.15;
+leftArm.castShadow = true;
+avatar.add(leftArm);
+
+const leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), skinMat);
+leftHand.position.set(-1.2, 0.98, 0.08);
+leftHand.castShadow = true;
+avatar.add(leftHand);
+
+const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.25, 0.8, 10), armMat);
+rightArm.position.set(0.95, 1.4, 0);
+rightArm.rotation.z = -0.25;
+rightArm.rotation.x = -0.15;
+rightArm.castShadow = true;
+avatar.add(rightArm);
+
+const rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.18, 10, 10), skinMat);
+rightHand.position.set(1.2, 0.98, -0.08);
+rightHand.castShadow = true;
+avatar.add(rightHand);
+
+const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.75, 10), darkMat);
+leftLeg.position.set(-0.35, 0.35, 0);
+leftLeg.castShadow = true;
+avatar.add(leftLeg);
+
+const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.3, 0.75, 10), darkMat);
+rightLeg.position.set(0.35, 0.35, 0);
+rightLeg.castShadow = true;
+avatar.add(rightLeg);
+
+const leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.45), new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.9 }));
+leftFoot.position.set(-0.35, 0.02, 0.05);
+leftFoot.castShadow = true;
+avatar.add(leftFoot);
+
+const rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.45), new THREE.MeshStandardMaterial({ color: 0x333344, roughness: 0.9 }));
+rightFoot.position.set(0.35, 0.02, 0.05);
+rightFoot.castShadow = true;
+avatar.add(rightFoot);
+
+scene.add(avatar);
+
+const loader = new FontLoader();
+loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetiker_bold.typeface.json', (font) => {
+  const textGeo = new TextGeometry('HELLO', {
+    font,
+    size: 0.5,
+    height: 0.05,
+    curveSegments: 6,
+    bevelEnabled: true,
+    bevelThickness: 0.02,
+    bevelSize: 0.01,
+    bevelSegments: 3,
+  });
+  textGeo.computeBoundingBox();
+  const cx = (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x) / 2;
+
+  const textMat = new THREE.MeshStandardMaterial({
+    color: 0x88ccff,
+    roughness: 0.2,
+    metalness: 0.6,
+    emissive: 0x224466,
+    emissiveIntensity: 0.2,
+  });
+  const text = new THREE.Mesh(textGeo, textMat);
+  text.position.set(-cx, 2.85, 0);
+  text.castShadow = true;
+  scene.add(text);
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  avatar.position.y = Math.sin(Date.now() * 0.001) * 0.04;
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+animate();
