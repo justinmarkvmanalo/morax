@@ -186,6 +186,11 @@ rightLegPivot.add(rightFoot);
 scene.add(avatar);
 avatar.scale.set(0.6, 0.6, 0.6);
 
+const walkSpeed = 0.02;
+const walkRadius = 2.5;
+let walkAngle = Math.random() * Math.PI * 2;
+let walkTimer = 0;
+
 const loader = new FontLoader();
 loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetiker_bold.typeface.json', (font) => {
   const textGeo = new TextGeometry('HELLO', {
@@ -230,6 +235,21 @@ function animate() {
   rightArmPivot.rotation.x = Math.sin(t + Math.PI) * swing;
   leftLegPivot.rotation.x = Math.sin(t + Math.PI) * swing;
   rightLegPivot.rotation.x = Math.sin(t) * swing;
+
+  walkTimer += 0.01;
+  if (walkTimer > 3 + Math.random() * 3) {
+    walkAngle += (Math.random() - 0.5) * Math.PI * 0.5;
+    walkTimer = 0;
+  }
+
+  avatar.position.x += Math.cos(walkAngle) * walkSpeed;
+  avatar.position.z += Math.sin(walkAngle) * walkSpeed;
+  avatar.rotation.y = -walkAngle;
+
+  const dist = Math.sqrt(avatar.position.x ** 2 + avatar.position.z ** 2);
+  if (dist > walkRadius) {
+    walkAngle += Math.PI + (Math.random() - 0.5) * 0.5;
+  }
 
   controls.update();
   renderer.render(scene, camera);
