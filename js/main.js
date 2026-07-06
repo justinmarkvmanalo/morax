@@ -7,8 +7,8 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x1a1a2e);
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(4, 3, 6);
-camera.lookAt(0, 1.2, 0);
+camera.position.set(8, 5, 12);
+camera.lookAt(0, 0.8, 0);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -20,11 +20,11 @@ renderer.toneMappingExposure = 1.2;
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 1.2, 0);
+controls.target.set(0, 0.8, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.08;
-controls.minDistance = 2;
-controls.maxDistance = 12;
+controls.minDistance = 3;
+controls.maxDistance = 25;
 controls.update();
 
 const ambientLight = new THREE.AmbientLight(0x404060, 0.6);
@@ -164,6 +164,7 @@ rightFoot.castShadow = true;
 avatar.add(rightFoot);
 
 scene.add(avatar);
+avatar.scale.set(0.6, 0.6, 0.6);
 
 const loader = new FontLoader();
 loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetiker_bold.typeface.json', (font) => {
@@ -188,7 +189,7 @@ loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetike
     emissiveIntensity: 0.2,
   });
   const text = new THREE.Mesh(textGeo, textMat);
-  text.position.set(-cx, 2.85, 0);
+  text.position.set(-cx, 1.7, 0);
   text.castShadow = true;
   scene.add(text);
 });
