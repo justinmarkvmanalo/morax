@@ -202,6 +202,7 @@ document.querySelectorAll('.controls button').forEach(btn => {
   btn.addEventListener('touchcancel', up, { passive: false });
 });
 
+let textMesh = null;
 const loader = new FontLoader();
 loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetiker_bold.typeface.json', (font) => {
   const textGeo = new TextGeometry('MORAX', {
@@ -224,10 +225,10 @@ loader.load('https://cdn.jsdelivr.net/npm/three@0.170.0/examples/fonts/helvetike
     emissive: 0x224466,
     emissiveIntensity: 0.2,
   });
-  const text = new THREE.Mesh(textGeo, textMat);
-  text.position.set(-cx, 1.7, 0);
-  text.castShadow = true;
-  scene.add(text);
+  textMesh = new THREE.Mesh(textGeo, textMat);
+  textMesh.position.set(-cx, 1.7, 0);
+  textMesh.castShadow = true;
+  scene.add(textMesh);
 });
 
 window.addEventListener('resize', () => {
@@ -240,6 +241,10 @@ function animate() {
   requestAnimationFrame(animate);
   const t = Date.now() * 0.003;
   avatar.position.y = Math.sin(t * 0.3) * 0.04;
+  if (textMesh) {
+    textMesh.position.x = avatar.position.x;
+    textMesh.position.z = avatar.position.z;
+  }
 
   let dx = 0, dz = 0;
   if (keys.w) dz -= 1;
