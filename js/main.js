@@ -190,17 +190,48 @@ const keys = { w: false, a: false, s: false, d: false };
 window.addEventListener('keydown', (e) => { if (e.key in keys) keys[e.key] = true; });
 window.addEventListener('keyup', (e) => { if (e.key in keys) keys[e.key] = false; });
 
-document.querySelectorAll('.controls button').forEach(btn => {
-  const key = btn.dataset.key;
-  const down = (e) => { e.preventDefault(); keys[key] = true; };
-  const up = (e) => { e.preventDefault(); keys[key] = false; };
-  btn.addEventListener('mousedown', down);
-  btn.addEventListener('mouseup', up);
-  btn.addEventListener('mouseleave', up);
-  btn.addEventListener('touchstart', down, { passive: false });
-  btn.addEventListener('touchend', up, { passive: false });
-  btn.addEventListener('touchcancel', up, { passive: false });
-});
+const jEl = document.getElementById('joystick');
+const knob = document.getElementById('joystickKnob');
+let jActive = false;
+const jMax = 30;
+
+function jStart(e) {
+  e.preventDefault();
+  jActive = true;
+}
+
+function jMove(e) {
+  e.preventDefault();
+  if (!jActive) return;
+  const t = e.touches ? e.touches[0] : e;
+  const r = jEl.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+  let dx = t.clientX - cx;
+  let dy = t.clientY - cy;
+  const d = Math.sqrt(dx * dx + dy * dy);
+  if (d > jMax) { dx = dx / d * jMax; dy = dy / d * jMax; }
+  knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  keys.w = dy < -8;
+  keys.s = dy > 8;
+  keys.a = dx < -8;
+  keys.d = dx > 8;
+}
+
+function jEnd(e) {
+  e.preventDefault();
+  jActive = false;
+  knob.style.transform = 'translate(-50%, -50%)';
+  keys.w = keys.a = keys.s = keys.d = false;
+}
+
+jEl.addEventListener('mousedown', jStart);
+window.addEventListener('mousemove', jMove);
+window.addEventListener('mouseup', jEnd);
+jEl.addEventListener('touchstart', jStart, { passive: false });
+window.addEventListener('touchmove', jMove, { passive: false });
+window.addEventListener('touchend', jEnd, { passive: false });
+window.addEventListener('touchcancel', jEnd, { passive: false });
 
 let textMesh = null;
 const loader = new FontLoader();
